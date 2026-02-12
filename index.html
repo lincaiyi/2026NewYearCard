@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>2026 丙午歲次賀禮集</title>
 
 <style>
@@ -24,14 +24,16 @@ body::before{
   z-index:-1;
 }
 
-#container{position:relative;width:420px;height:300px}
+/* 調整容器為響應式寬度，最大不超過 420px */
+#container{position:relative;width:90vw;max-width:420px;height:300px;margin:0 auto}
 
 .card-system{
-  position:absolute;width:420px;height:300px;cursor:pointer;
+  position:absolute;width:100%;height:100%;cursor:pointer;
   transition:.8s cubic-bezier(.34,1.56,.64,1);
   visibility:hidden;opacity:0;
   transform:translateY(100px) scale(.8);
   --x:50%;--y:50%;
+  left:0;top:0;
 }
 .card-system.active{
   visibility:visible;opacity:1;transform:none;z-index:100;
@@ -61,9 +63,20 @@ clip-path:polygon(0 35%,50% 70%,100% 35%,100% 100%,0 100%);z-index:10}
 .lid{position:absolute;inset:0;transform-origin:top;transition:.6s ease;z-index:15}
 .lid::before{
   content:'';position:absolute;
-  border-left:210px solid transparent;
-  border-right:210px solid transparent;
+  /* 使用百分比確保手機版三角形正確對齊 */
+  border-left:45vw solid transparent;
+  border-right:45vw solid transparent;
+}
+/* 針對大螢幕限制三角形寬度 */
+@media(min-width:467px){
+  .lid::before{
+    border-left:210px solid transparent;
+    border-right:210px solid transparent;
+  }
+}
+.lid::before{
   border-top:160px solid #7a0000;
+  left:50%;transform:translateX(-50%);
 }
 
 .seal{
@@ -78,7 +91,7 @@ clip-path:polygon(0 35%,50% 70%,100% 35%,100% 100%,0 100%);z-index:10}
 /* Letter */
 .letter{
   position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
-  width:390px;height:260px;padding:30px;box-sizing:border-box;
+  width:94%;height:260px;padding:20px;box-sizing:border-box;
   background:#fffdf5 url('https://www.transparenttextures.com/patterns/paper-fibers.png');
   border:1px solid #e0d5b0;border-radius:2px;
   clip-path:inset(100% 0 0 0);
@@ -103,14 +116,15 @@ clip-path:polygon(0 35%,50% 70%,100% 35%,100% 100%,0 100%);z-index:10}
 
 /* Text */
 .title{
-  margin:0;font-size:26px;letter-spacing:8px;font-weight:900;
+  margin:0;font-size:22px;letter-spacing:4px;font-weight:900;
   background:var(--gold-text);background-size:200% auto;
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   animation:shine 3s linear infinite;
+  text-align:center;
 }
 @keyframes shine{to{background-position:200% center}}
 
-.text{margin-top:20px;text-align:center;line-height:1.9;color:#444}
+.text{margin-top:15px;text-align:center;line-height:1.7;color:#444;font-size:16px}
 
 .line{
   opacity:0;transform:translateY(6px);
@@ -119,16 +133,17 @@ clip-path:polygon(0 35%,50% 70%,100% 35%,100% 100%,0 100%);z-index:10}
 @keyframes lineIn{to{opacity:1;transform:none}}
 
 .signature{
-  margin-top:18px;
+  margin-top:15px;
   align-self:flex-end;
   font-weight:bold;
   color:#8b0000;
+  font-size:14px;
 }
 
-.letter-deco{width:80%;height:1px;background:var(--gold-main);margin:14px 0;opacity:.5}
+.letter-deco{width:80%;height:1px;background:var(--gold-main);margin:12px 0;opacity:.5}
 
-.counter{position:fixed;top:30px;right:40px;color:#bf953f}
-.hint{position:fixed;bottom:40px;width:100%;text-align:center;color:#bf953f;letter-spacing:4px}
+.counter{position:fixed;top:20px;right:20px;color:#bf953f;font-size:14px;z-index:200}
+.hint{position:fixed;bottom:30px;width:100%;text-align:center;color:#bf953f;letter-spacing:4px;font-size:14px;z-index:200}
 </style>
 </head>
 
@@ -180,16 +195,16 @@ function initCards(){
   ).join("");
 
   card.innerHTML=`
-   <div class="lid"></div>
-   <div class="seal">賀</div>
-   <div class="envelope-back"></div>
-   <div class="envelope-front"></div>
-   <div class="letter">
-    <h1 class="title">祝賀 ${item.to}</h1>
-    <div class="letter-deco"></div>
-    <div class="text">${lines}</div>
-    <div class="signature">${item.from} 敬賀</div>
-   </div>`;
+    <div class="lid"></div>
+    <div class="seal">賀</div>
+    <div class="envelope-back"></div>
+    <div class="envelope-front"></div>
+    <div class="letter">
+     <h1 class="title">祝賀 ${item.to}</h1>
+     <div class="letter-deco"></div>
+     <div class="text">${lines}</div>
+     <div class="signature">${item.from} 敬賀</div>
+    </div>`;
 
   card.onclick=()=>{
     if(!card.classList.contains("active"))return;
