@@ -38,14 +38,14 @@ body::before {
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 
-/* 音樂控制按鈕：預設就是開啟狀態 */
+/* 音樂控制按鈕 */
 #music-control {
   position: fixed; top: calc(20px + env(safe-area-inset-top)); left: 25px;
   width: 40px; height: 40px; z-index: 300; cursor: pointer;
   background: rgba(0,0,0,0.3); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   border: 1px solid #bf953f; transition: 0.3s;
-  animation: pulse 2s infinite; /* 一開始就讓它閃動，提示可以互動 */
+  animation: pulse 2s infinite;
 }
 #music-control:active { transform: scale(0.9); }
 #music-control svg { width: 20px; height: 20px; fill: #bf953f; }
@@ -195,35 +195,48 @@ const wishes=[
 
 let currentIndex=0;
 let isMusicInitiated = false;
+let userWantsMusic = true; // 紀錄使用者最後的手動選擇
 const container=document.getElementById("container");
 const counter=document.getElementById("counter");
 const bgm = document.getElementById("bgm");
 const iconPlay = document.getElementById("icon-play");
 const iconMute = document.getElementById("icon-mute");
 
-// 這是核心啟動器：只要使用者一碰螢幕就開音效
+// --- 核心修正：偵測頁面狀態 ---
+document.addEventListener("visibilitychange", function() {
+  if (document.hidden) {
+    // 當頁面隱藏（離開、關閉、切換 App）
+    bgm.pause();
+  } else {
+    // 當使用者回到頁面
+    if (isMusicInitiated && userWantsMusic) {
+      bgm.play().catch(e => console.log("等待重新互動"));
+    }
+  }
+});
+
 function initiateAudio() {
-  if (!isMusicInitiated) {
+  if (!isMusicInitiated && userWantsMusic) {
     bgm.play().then(() => {
       isMusicInitiated = true;
-      console.log("Audio started via user interaction");
-    }).catch(err => console.log("Waiting for user..."));
+    }).catch(err => console.log("User interaction needed"));
   }
 }
 
-// 監聽所有可能的互動
 ["click", "touchstart", "wheel", "mousedown"].forEach(event => {
   window.addEventListener(event, initiateAudio, { once: true });
 });
 
 function toggleMusic() {
-  isMusicInitiated = true; // 使用者手動操作按鈕也算互動
+  isMusicInitiated = true; 
   if (bgm.paused) {
+    userWantsMusic = true;
     bgm.play();
     iconPlay.style.display = "block";
     iconMute.style.display = "none";
     document.getElementById("music-control").style.animation = "pulse 2s infinite";
   } else {
+    userWantsMusic = false;
     bgm.pause();
     iconPlay.style.display = "none";
     iconMute.style.display = "block";
@@ -281,7 +294,7 @@ function initCards(){
      <div class="signature">${item.from} 敬賀</div>
     </div>`;
   card.onclick=()=>{
-    initiateAudio(); // 點擊卡片也嘗試啟動 BGM
+    initiateAudio();
     if(!card.classList.contains("active"))return;
     const step=+card.dataset.step;
     if(step===0)card.classList.add("break-seal");
@@ -296,7 +309,7 @@ function initCards(){
 }
 
 function change(dir){
- initiateAudio(); // 切換卡片也嘗試啟動 BGM
+ initiateAudio();
  const active=document.querySelector(".active");
  if(active){
    active.classList.remove("break-seal","open-lid","pull-letter");
