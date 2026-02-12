@@ -3,172 +3,209 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>2026 丙午歲次賀禮集</title>
+<title>2026 丙午馬年 · 賀禮集</title>
 
 <style>
 :root{
   --env-red:#9e0b0f;
-  --env-dark:#5e0505;
+  --env-dark:#4a0404;
   --gold-main:linear-gradient(135deg,#bf953f,#fcf6ba,#b38728,#fbf5b7,#aa771c);
   --gold-text:linear-gradient(to right,#bf953f 22%,#fcf6ba 45%,#b38728 50%,#fcf6ba 55%,#bf953f 78%);
+  --bg-dark:#0a0202;
 }
 
 body{
-  margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
-  background:#050505;perspective:2000px;font-family:"Noto Serif TC",serif;
+  margin:0; height:100vh; display:flex; flex-direction: column; align-items:center; justify-content:center;
+  background: var(--bg-dark);
+  perspective: 2000px; font-family:"Noto Serif TC",serif;
   overflow:hidden;
 }
-body::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at center,#2c0000 0%,#000 70%);
-  z-index:-1;
+
+/* 背景層次 */
+body::before {
+  content: ''; position: absolute; inset: 0;
+  background: 
+    radial-gradient(circle at center, #3d0505 0%, var(--bg-dark) 80%),
+    url('https://www.transparenttextures.com/patterns/60-lines.png');
+  opacity: 0.6; z-index: -2;
+}
+
+/* 金箔粒子 */
+.particle {
+  position: absolute; background: var(--gold-main);
+  pointer-events: none; border-radius: 1px; opacity: 0; z-index: -1;
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+  20% { opacity: 0.6; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 
 #container{
-  position:relative;
-  width:90vw;
-  max-width:420px;
-  height:300px;
-  /* 稍微往上偏移，給底部的提示文字留空間 */
-  margin-top: -20px;
+  position:relative; width:90vw; max-width:420px; height:300px; 
+  margin-top: -80px; /* 向上微調給底部留空間 */
 }
 
+/* 卡片系統 */
 .card-system{
-  position:absolute;width:100%;height:100%;cursor:pointer;
+  position:absolute; width:100%; height:100%; cursor:pointer;
   transition:.8s cubic-bezier(.34,1.56,.64,1);
-  visibility:hidden;opacity:0;
-  transform:translateY(100px) scale(.8);
-  --x:50%;--y:50%;
-  left:0;top:0;
+  visibility:hidden; opacity:0;
+  transform:translateY(80px) scale(.8);
+  --x:50%; --y:50%; left:0; top:0;
 }
-.card-system.active{
-  visibility:visible;opacity:1;transform:none;z-index:100;
-}
-.card-system.exit-up{opacity:0;transform:translateY(-800px) rotate(-10deg) scale(1.1)}
-.card-system.queue-down{opacity:0;transform:translateY(400px) scale(.85)}
+.card-system.active{ visibility:visible; opacity:1; transform:none; z-index:100; }
+.card-system.exit-up{ opacity:0; transform:translateY(-800px) rotate(-10deg) scale(1.1) }
+.card-system.queue-down{ opacity:0; transform:translateY(400px) scale(.85) }
 
 .card-system::after{
-  content:'';position:absolute;inset:-30px;
-  background:radial-gradient(300px circle at var(--x) var(--y),
-    rgba(255,215,150,.22),
-    rgba(255,215,150,.08) 35%,
-    transparent 60%);
-  opacity:0;transition:.4s;pointer-events:none;
+  content:''; position:absolute; inset:-40px;
+  background:radial-gradient(400px circle at var(--x) var(--y),
+    rgba(255,215,150,.18), rgba(255,215,150,.05) 35%, transparent 65%);
+  opacity:0; transition:.4s; pointer-events:none;
 }
 .card-system.active::after{opacity:1}
 
-/* Envelope */
-.envelope-back{position:absolute;inset:0;background:var(--env-dark);border-radius:4px;box-shadow:0 30px 60px rgba(0,0,0,.8)}
-.envelope-front{position:absolute;inset:0;background:var(--env-red);
-clip-path:polygon(0 35%,50% 70%,100% 35%,100% 100%,0 100%);z-index:10}
+/* 信封樣式 */
+.envelope-back{position:absolute; inset:0; background:var(--env-dark); border-radius:4px; box-shadow:0 35px 70px rgba(0,0,0,.9)}
+.envelope-front{position:absolute; inset:0; background:var(--env-red);
+clip-path:polygon(0 35%, 50% 70%, 100% 35%, 100% 100%, 0 100%); z-index:10;
+box-shadow: inset 0 -10px 30px rgba(0,0,0,0.2);
+}
 .envelope-front::after{
-  content:'';position:absolute;inset:0;background:var(--gold-main);
-  clip-path:polygon(0 35%,50% 70%,100% 35%,100% 37%,50% 72%,0 37%)
+  content:''; position:absolute; inset:0; background:var(--gold-main);
+  clip-path:polygon(0 35%, 50% 70%, 100% 35%, 100% 36.5%, 50% 71.5%, 0 36.5%)
 }
 
-.lid{position:absolute;inset:0;transform-origin:top;transition:.6s ease;z-index:15}
+.lid{position:absolute; inset:0; transform-origin:top; transition:.6s ease; z-index:15}
 .lid::before{
-  content:'';position:absolute;
-  border-left:45vw solid transparent;
-  border-right:45vw solid transparent;
-  border-top:160px solid #7a0000;
-  left:50%;transform:translateX(-50%);
+  content:''; position:absolute;
+  border-left:45vw solid transparent; border-right:45vw solid transparent;
+  border-top:165px solid #820000; left:50%; transform:translateX(-50%);
 }
-@media(min-width:467px){
-  .lid::before{
-    border-left:210px solid transparent;
-    border-right:210px solid transparent;
-  }
-}
+@media(min-width:467px){ .lid::before{ border-left:210px solid transparent; border-right:210px solid transparent; } }
 
 .seal{
-  position:absolute;top:120px;left:50%;transform:translateX(-50%);
-  width:65px;height:65px;border-radius:50%;
-  background:var(--gold-main);
-  display:flex;align-items:center;justify-content:center;
-  font-size:28px;font-weight:bold;color:#5a0000;
-  box-shadow:0 6px 15px rgba(0,0,0,.4);z-index:20;
+  position:absolute; top:118px; left:50%; transform:translateX(-50%);
+  width:72px; height:72px; border-radius:50%;
+  background:var(--gold-main); display:flex; flex-direction:column; align-items:center; justify-content:center;
+  box-shadow:0 8px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);
+  z-index:20; border: 1px solid rgba(255,255,255,0.4);
 }
+.seal::before { content: '🐎'; font-size: 26px; }
+.seal::after { content: '丙午'; font-size: 11px; font-weight: bold; color: #5a0000; letter-spacing: 2px;}
 
-/* Letter */
+/* 信件樣式 */
 .letter{
-  position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
-  width:94%;height:260px;padding:20px;box-sizing:border-box;
+  position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
+  width:94%; height:280px; padding:25px 25px; box-sizing:border-box;
   background:#fffdf5 url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-  border:1px solid #e0d5b0;border-radius:2px;
-  clip-path:inset(100% 0 0 0);
-  transition:.7s cubic-bezier(.4,0,.2,1);
-  z-index:5;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1px solid #e0d5b0; border-radius:2px;
+  clip-path:inset(100% 0 0 0); transition:.8s cubic-bezier(.4,0,.2,1);
+  z-index:5; display:flex; flex-direction:column; align-items:center;
 }
 
-/* 三段式 */
 .card-system.break-seal .seal{animation:sealBreak .5s ease forwards}
-@keyframes sealBreak{
-  0%{transform:translateX(-50%) scale(1)}
-  60%{transform:translateX(-50%) scale(1.2)}
-  100%{transform:translateX(-50%) scale(0);opacity:0}
-}
-.card-system.open-lid .lid{transform:rotateX(160deg);z-index:1}
+@keyframes sealBreak{ 100%{transform:translateX(-50%) scale(0); opacity:0} }
+.card-system.open-lid .lid{transform:rotateX(160deg); z-index:1}
 .card-system.pull-letter .letter{
-  transform:translateX(-50%) translateY(-220px);
-  clip-path:inset(0 0 0 0);
-  box-shadow:0 20px 40px rgba(0,0,0,.6);
+  transform:translateX(-50%) translateY(-250px);
+  clip-path:inset(0 0 0 0); box-shadow:0 30px 60px rgba(0,0,0,.5);
 }
 
-/* Text */
 .title{
-  margin:0;font-size:22px;letter-spacing:4px;font-weight:900;
-  background:var(--gold-text);background-size:200% auto;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  animation:shine 3s linear infinite;
-  text-align:center;
+  margin:0 0 10px 0; font-size:22px; letter-spacing:4px; font-weight:900;
+  background:var(--gold-text); background-size:200% auto;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  animation:shine 3s linear infinite; text-align: center;
 }
 @keyframes shine{to{background-position:200% center}}
-.text{margin-top:15px;text-align:center;line-height:1.7;color:#444;font-size:16px}
-.line{opacity:0;transform:translateY(6px);animation:lineIn .6s ease forwards}
-@keyframes lineIn{to{opacity:1;transform:none}}
-.signature{margin-top:15px;align-self:flex-end;font-weight:bold;color:#8b0000;font-size:14px}
-.letter-deco{width:80%;height:1px;background:var(--gold-main);margin:12px 0;opacity:.5}
+.text{margin-top:15px; text-align:center; line-height:2; color:#444; font-size:16px; flex-grow: 1;}
+.line{opacity:0; transform:translateY(8px); animation:lineIn .7s ease forwards}
+@keyframes lineIn{to{opacity:1; transform:none}}
+.signature{margin-top:10px; align-self:flex-end; font-weight:bold; color:#8b0000; font-size:14px; border-bottom: 1.5px solid #8b0000;}
 
-/* 這裡是針對手機位置修正的關鍵 */
-.counter{
-  position:fixed;
-  top:calc(20px + env(safe-area-inset-top));
-  right:20px;
-  color:#bf953f;
-  font-size:14px;
-  z-index:200;
+/* 底部裝飾容器修正：拉高間距避開手機導覽條 */
+.bottom-ui {
+  position: fixed;
+  bottom: calc(80px + env(safe-area-inset-bottom)); /* 從 40px 改為 80px */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  z-index: 200;
 }
-.hint{
-  position:fixed;
-  bottom:calc(60px + env(safe-area-inset-bottom)); /* 提高位置並閃避安全區 */
-  width:100%;
-  text-align:center;
-  color:#bf953f;
-  letter-spacing:4px;
-  font-size:14px;
-  z-index:200;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* 增加陰影讓文字在深色背景更清楚 */
+
+.zodiac-decor {
+  background: var(--gold-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.9;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  text-shadow: 0 0 15px rgba(191,149,63,0.3);
+}
+
+.hint {
+  color: #bf953f;
+  letter-spacing: 4px;
+  font-size: 13px;
+  opacity: 0.7;
+  animation: breath 2.5s ease-in-out infinite;
+}
+
+.counter{
+  position:fixed; top:calc(20px + env(safe-area-inset-top)); right:25px;
+  color:#bf953f; font-size:15px; z-index:200;
+}
+
+@keyframes breath { 0%, 100% { opacity: 0.3; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } }
+
+/* 針對小螢幕優化 */
+@media (max-height: 700px) {
+  #container { margin-top: -100px; }
+  .bottom-ui { bottom: calc(60px + env(safe-area-inset-bottom)); }
 }
 </style>
 </head>
 
 <body>
+
 <div class="counter" id="counter"></div>
+
 <div id="container"></div>
-<div class="hint">✦ 滑動切換 · 點擊拆封 ✦</div>
+
+<div class="bottom-ui">
+  <div class="zodiac-decor">二零二六 · 丙午馬年</div>
+  <div class="hint">✦ 滑動切換 · 點擊拆封 ✦</div>
+</div>
 
 <script>
 const wishes=[
- {to:"國王 女王 大王",from:"王大明",wish:["祝您新的一年","龍馬精神，步步高升。"]},
- {to:"尊貴貴賓",from:"李小華",wish:["願 2026 丙午年","身體康健，萬事順遂。"]},
- {to:"敬愛的您",from:"張經理",wish:["感謝一路支持","財源廣進，福氣滿門。"]}
+  {to:"尊貴的合作夥伴",from:"王大明",wish:["祝您新的一年","龍馬精神，步步高升","事業騰飛創輝煌。"]},
+  {to:"敬愛的長輩",from:"李小華",wish:["願 2026 丙午年","福馬迎祥，身體康健","萬事順遂平安。"]},
+  {to:"親愛的朋友",from:"張經理",wish:["感謝一路並肩","財源廣進，福氣滿門","好運奔騰而來。"]}
 ];
 
 let currentIndex=0;
 const container=document.getElementById("container");
 const counter=document.getElementById("counter");
+
+function createParticles() {
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 5 + 2 + 'px';
+    p.style.width = size; p.style.height = size;
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = Math.random() * 6 + 4 + 's';
+    p.style.animationDelay = Math.random() * 5 + 's';
+    document.body.appendChild(p);
+  }
+}
 
 const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
 function paperSound(){
@@ -195,15 +232,14 @@ function initCards(){
   const card=document.createElement("div");
   card.className="card-system";
   card.dataset.step=0;
-  const lines=item.wish.map((t,i)=>`<div class="line" style="animation-delay:${i*.25}s">${t}</div>`).join("");
+  const lines=item.wish.map((t,i)=>`<div class="line" style="animation-delay:${(i+1)*.3}s">${t}</div>`).join("");
   card.innerHTML=`
     <div class="lid"></div>
-    <div class="seal">賀</div>
+    <div class="seal"></div>
     <div class="envelope-back"></div>
     <div class="envelope-front"></div>
     <div class="letter">
      <h1 class="title">祝賀 ${item.to}</h1>
-     <div class="letter-deco"></div>
      <div class="text">${lines}</div>
      <div class="signature">${item.from} 敬賀</div>
     </div>`;
@@ -218,29 +254,25 @@ function initCards(){
   container.appendChild(card);
  });
  updateView();
-}
-
-function reset(card){
- card.classList.remove("break-seal","open-lid","pull-letter");
- card.dataset.step=0;
+ createParticles();
 }
 
 function change(dir){
  const active=document.querySelector(".active");
- if(active)reset(active);
+ if(active){
+   active.classList.remove("break-seal","open-lid","pull-letter");
+   active.dataset.step=0;
+ }
  if(dir==="next"&&currentIndex<wishes.length-1)currentIndex++;
  if(dir==="prev"&&currentIndex>0)currentIndex--;
  updateView();
 }
 
-window.addEventListener("wheel",e=>{
- if(Math.abs(e.deltaY)>30)change(e.deltaY>0?"next":"prev");
-});
-
-let t=0;
-window.addEventListener("touchstart",e=>t=e.touches[0].clientY);
+window.addEventListener("wheel",e=>{ if(Math.abs(e.deltaY)>30)change(e.deltaY>0?"next":"prev"); });
+let startY=0;
+window.addEventListener("touchstart",e=>startY=e.touches[0].clientY);
 window.addEventListener("touchend",e=>{
- const d=t-e.changedTouches[0].clientY;
+ const d=startY-e.changedTouches[0].clientY;
  if(Math.abs(d)>50)change(d>0?"next":"prev");
 });
 
