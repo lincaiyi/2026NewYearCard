@@ -21,16 +21,13 @@ body{
   overflow:hidden;
 }
 
-/* 背景層次 */
+/* 背景與金箔粒子 */
 body::before {
   content: ''; position: absolute; inset: 0;
-  background: 
-    radial-gradient(circle at center, #3d0505 0%, var(--bg-dark) 80%),
-    url('https://www.transparenttextures.com/patterns/60-lines.png');
+  background: radial-gradient(circle at center, #3d0505 0%, var(--bg-dark) 80%), url('https://www.transparenttextures.com/patterns/60-lines.png');
   opacity: 0.6; z-index: -2;
 }
 
-/* 金箔粒子 */
 .particle {
   position: absolute; background: var(--gold-main);
   pointer-events: none; border-radius: 1px; opacity: 0; z-index: -1;
@@ -42,33 +39,25 @@ body::before {
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 
+/* 容器位置優化：整體稍微下移，為抽出的信件留頂部空間 */
 #container{
-  position:relative; width:90vw; max-width:420px; height:300px; 
-  margin-top: -80px; /* 向上微調給底部留空間 */
+  position:relative; width:90vw; max-width:400px; height:280px; 
+  margin-top: 40px; 
 }
 
-/* 卡片系統 */
 .card-system{
   position:absolute; width:100%; height:100%; cursor:pointer;
   transition:.8s cubic-bezier(.34,1.56,.64,1);
   visibility:hidden; opacity:0;
-  transform:translateY(80px) scale(.8);
+  transform:translateY(50px) scale(.8);
   --x:50%; --y:50%; left:0; top:0;
 }
 .card-system.active{ visibility:visible; opacity:1; transform:none; z-index:100; }
 .card-system.exit-up{ opacity:0; transform:translateY(-800px) rotate(-10deg) scale(1.1) }
 .card-system.queue-down{ opacity:0; transform:translateY(400px) scale(.85) }
 
-.card-system::after{
-  content:''; position:absolute; inset:-40px;
-  background:radial-gradient(400px circle at var(--x) var(--y),
-    rgba(255,215,150,.18), rgba(255,215,150,.05) 35%, transparent 65%);
-  opacity:0; transition:.4s; pointer-events:none;
-}
-.card-system.active::after{opacity:1}
-
-/* 信封樣式 */
-.envelope-back{position:absolute; inset:0; background:var(--env-dark); border-radius:4px; box-shadow:0 35px 70px rgba(0,0,0,.9)}
+/* 信封細節 */
+.envelope-back{position:absolute; inset:0; background:var(--env-dark); border-radius:4px; box-shadow:0 25px 50px rgba(0,0,0,0.8)}
 .envelope-front{position:absolute; inset:0; background:var(--env-red);
 clip-path:polygon(0 35%, 50% 70%, 100% 35%, 100% 100%, 0 100%); z-index:10;
 box-shadow: inset 0 -10px 30px rgba(0,0,0,0.2);
@@ -82,24 +71,23 @@ box-shadow: inset 0 -10px 30px rgba(0,0,0,0.2);
 .lid::before{
   content:''; position:absolute;
   border-left:45vw solid transparent; border-right:45vw solid transparent;
-  border-top:165px solid #820000; left:50%; transform:translateX(-50%);
+  border-top:150px solid #820000; left:50%; transform:translateX(-50%);
 }
-@media(min-width:467px){ .lid::before{ border-left:210px solid transparent; border-right:210px solid transparent; } }
+@media(min-width:467px){ .lid::before{ border-left:200px solid transparent; border-right:200px solid transparent; } }
 
 .seal{
-  position:absolute; top:118px; left:50%; transform:translateX(-50%);
-  width:72px; height:72px; border-radius:50%;
+  position:absolute; top:105px; left:50%; transform:translateX(-50%);
+  width:68px; height:68px; border-radius:50%;
   background:var(--gold-main); display:flex; flex-direction:column; align-items:center; justify-content:center;
-  box-shadow:0 8px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);
-  z-index:20; border: 1px solid rgba(255,255,255,0.4);
+  box-shadow:0 8px 20px rgba(0,0,0,0.5); z-index:20; border: 1px solid rgba(255,255,255,0.4);
 }
-.seal::before { content: '🐎'; font-size: 26px; }
-.seal::after { content: '丙午'; font-size: 11px; font-weight: bold; color: #5a0000; letter-spacing: 2px;}
+.seal::before { content: '🐎'; font-size: 24px; }
+.seal::after { content: '丙午'; font-size: 10px; font-weight: bold; color: #5a0000; letter-spacing: 2px;}
 
-/* 信件樣式 */
+/* 信件：調整高度與內距確保不被切到 */
 .letter{
   position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
-  width:94%; height:280px; padding:25px 25px; box-sizing:border-box;
+  width:92%; height:260px; padding:20px; box-sizing:border-box;
   background:#fffdf5 url('https://www.transparenttextures.com/patterns/paper-fibers.png');
   border:1px solid #e0d5b0; border-radius:2px;
   clip-path:inset(100% 0 0 0); transition:.8s cubic-bezier(.4,0,.2,1);
@@ -109,65 +97,68 @@ box-shadow: inset 0 -10px 30px rgba(0,0,0,0.2);
 .card-system.break-seal .seal{animation:sealBreak .5s ease forwards}
 @keyframes sealBreak{ 100%{transform:translateX(-50%) scale(0); opacity:0} }
 .card-system.open-lid .lid{transform:rotateX(160deg); z-index:1}
+
+/* 抽出高度修正：從 -250px 改為 -210px，避免超出螢幕頂部 */
 .card-system.pull-letter .letter{
-  transform:translateX(-50%) translateY(-250px);
-  clip-path:inset(0 0 0 0); box-shadow:0 30px 60px rgba(0,0,0,.5);
+  transform:translateX(-50%) translateY(-210px);
+  clip-path:inset(0 0 0 0); box-shadow:0 20px 40px rgba(0,0,0,.5);
 }
 
 .title{
-  margin:0 0 10px 0; font-size:22px; letter-spacing:4px; font-weight:900;
+  margin:0 0 8px 0; font-size:20px; letter-spacing:3px; font-weight:900;
   background:var(--gold-text); background-size:200% auto;
   -webkit-background-clip:text; -webkit-text-fill-color:transparent;
   animation:shine 3s linear infinite; text-align: center;
 }
-@keyframes shine{to{background-position:200% center}}
-.text{margin-top:15px; text-align:center; line-height:2; color:#444; font-size:16px; flex-grow: 1;}
+.text{margin-top:10px; text-align:center; line-height:1.8; color:#444; font-size:15px; flex-grow: 1;}
 .line{opacity:0; transform:translateY(8px); animation:lineIn .7s ease forwards}
 @keyframes lineIn{to{opacity:1; transform:none}}
-.signature{margin-top:10px; align-self:flex-end; font-weight:bold; color:#8b0000; font-size:14px; border-bottom: 1.5px solid #8b0000;}
+.signature{margin-top:8px; align-self:flex-end; font-weight:bold; color:#8b0000; font-size:13px; border-bottom: 1.5px solid #8b0000;}
 
-/* 底部裝飾容器修正：拉高間距避開手機導覽條 */
+/* 底部裝飾容器：稍微往下壓一點，並優化層級 */
 .bottom-ui {
   position: fixed;
-  bottom: calc(80px + env(safe-area-inset-bottom)); /* 從 40px 改為 80px */
+  bottom: calc(40px + env(safe-area-inset-bottom));
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  z-index: 200;
+  gap: 10px;
+  z-index: 50; /* 降低層級，確保信件抽出時是在文字上方 */
+  pointer-events: none;
 }
 
 .zodiac-decor {
   background: var(--gold-text);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  opacity: 0.9;
+  opacity: 1; /* 完全顯示 */
   font-size: 22px;
   font-weight: 700;
   letter-spacing: 6px;
-  text-shadow: 0 0 15px rgba(191,149,63,0.3);
+  text-shadow: 0 0 15px rgba(191,149,63,0.4);
 }
 
 .hint {
   color: #bf953f;
   letter-spacing: 4px;
   font-size: 13px;
-  opacity: 0.7;
+  opacity: 0.8;
   animation: breath 2.5s ease-in-out infinite;
 }
 
 .counter{
   position:fixed; top:calc(20px + env(safe-area-inset-top)); right:25px;
-  color:#bf953f; font-size:15px; z-index:200;
+  color:#bf953f; font-size:14px; z-index:200;
 }
 
-@keyframes breath { 0%, 100% { opacity: 0.3; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes breath { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+@keyframes shine{to{background-position:200% center}}
 
-/* 針對小螢幕優化 */
-@media (max-height: 700px) {
-  #container { margin-top: -100px; }
-  .bottom-ui { bottom: calc(60px + env(safe-area-inset-bottom)); }
+/* 針對極短螢幕的手機進一步壓縮 */
+@media (max-height: 667px) {
+  #container { margin-top: 60px; transform: scale(0.9); }
+  .bottom-ui { bottom: calc(20px + env(safe-area-inset-bottom)); }
 }
 </style>
 </head>
@@ -195,10 +186,10 @@ const container=document.getElementById("container");
 const counter=document.getElementById("counter");
 
 function createParticles() {
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 20; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
-    const size = Math.random() * 5 + 2 + 'px';
+    const size = Math.random() * 4 + 2 + 'px';
     p.style.width = size; p.style.height = size;
     p.style.left = Math.random() * 100 + 'vw';
     p.style.animationDuration = Math.random() * 6 + 4 + 's';
