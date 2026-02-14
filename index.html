@@ -6,337 +6,370 @@
 <title>2026 丙午馬年 · 賀禮集</title>
 
 <style>
-:root{
-  --env-red:#9e0b0f;
-  --env-dark:#4a0404;
-  --gold-main:linear-gradient(135deg,#bf953f,#fcf6ba,#b38728,#fbf5b7,#aa771c);
-  --gold-text:linear-gradient(to right,#bf953f 22%,#fcf6ba 45%,#b38728 50%,#fcf6ba 55%,#bf953f 78%);
-  --bg-dark:#0a0202;
+/* --- 1. 煙火遮罩層 --- */
+#intro-overlay {
+    position: fixed;
+    inset: 0;
+    background: #050505;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 2s cubic-bezier(0.4, 0, 0.2, 1), visibility 2s;
+    cursor: pointer;
+}
+#intro-canvas { position: absolute; inset: 0; }
+.intro-content {
+    position: relative; z-index: 10000; text-align: center;
+    pointer-events: none; user-select: none;
+}
+.intro-year {
+    color: #888; letter-spacing: 0.8rem; font-size: 1rem;
+    margin-bottom: 25px; opacity: 0; animation: introFade 2.5s ease forwards 0.5s;
+}
+.intro-title {
+    font-size: clamp(2rem, 8vw, 3.2rem);
+    font-weight: 700; letter-spacing: 1.5rem;
+    background: linear-gradient(to right, #bf953f, #fcf6ba, #bf953f);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    opacity: 0; filter: blur(12px); animation: introReveal 3s ease-out forwards 1s;
 }
 
-body{
-  margin:0; height:100vh; display:flex; flex-direction: column; align-items:center; justify-content:center;
-  background: var(--bg-dark);
-  perspective: 2000px; font-family:"Noto Serif TC",serif;
-  overflow:hidden;
+/* --- 2. 核心佈局變數 --- */
+:root {
+    --env-red:#9e0b0f;
+    --env-dark:#4a0404;
+    --gold-main:linear-gradient(135deg,#bf953f,#fcf6ba,#b38728,#fbf5b7,#aa771c);
+    --gold-text:linear-gradient(to right,#bf953f 22%,#fcf6ba 45%,#b38728 50%,#fcf6ba 55%,#bf953f 78%);
+    --bg-dark:#0a0202;
+}
+
+body {
+    margin:0; height:100vh; display:flex; flex-direction: column; align-items:center; justify-content:center;
+    background: var(--bg-dark); perspective: 2000px; font-family:"Noto Serif TC",serif; overflow:hidden;
 }
 
 body::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at center, #3d0505 0%, var(--bg-dark) 80%), url('https://www.transparenttextures.com/patterns/60-lines.png');
-  opacity: 0.6; z-index: -2;
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at center, #3d0505 0%, var(--bg-dark) 80%), url('https://www.transparenttextures.com/patterns/60-lines.png');
+    opacity: 0.6; z-index: -2;
 }
 
-.particle {
-  position: absolute; background: var(--gold-main);
-  pointer-events: none; border-radius: 1px; opacity: 0; z-index: -1;
-  animation: fall linear infinite;
-}
-@keyframes fall {
-  0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
-  20% { opacity: 0.6; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-}
-
-/* 音樂控制按鈕 */
-#music-control {
-  position: fixed; top: calc(20px + env(safe-area-inset-top)); left: 25px;
-  width: 40px; height: 40px; z-index: 300; cursor: pointer;
-  background: rgba(0,0,0,0.3); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  border: 1px solid #bf953f; transition: 0.3s;
-  animation: pulse 2s infinite;
-}
-#music-control:active { transform: scale(0.9); }
-#music-control svg { width: 20px; height: 20px; fill: #bf953f; }
-@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(191,149,63,0.4); } 70% { box-shadow: 0 0 0 10px rgba(191,149,63,0); } 100% { box-shadow: 0 0 0 0 rgba(191,149,63,0); } }
-
-#container{
-  position:relative; width:90vw; max-width:400px; height:280px; 
-  margin-top: 40px; 
+/* --- 3. 響應式容器優化 (修復電腦遮字問題) --- */
+#container { 
+    position: relative; 
+    width: 90vw; 
+    max-width: 400px; 
+    height: 280px; 
+    margin-top: -5vh; /* 向上微調，騰出下方空間 */
+    transition: transform 0.5s ease;
 }
 
-.card-system{
-  position:absolute; width:100%; height:100%; cursor:pointer;
-  transition:.8s cubic-bezier(.34,1.56,.64,1);
-  visibility:hidden; opacity:0;
-  transform:translateY(50px) scale(.8);
-  --x:50%; --y:50%; left:0; top:0;
+/* 電腦版或矮螢幕自動縮小 */
+@media (min-width: 1024px), (max-height: 700px) {
+    #container { transform: scale(0.85); margin-top: -2vh; }
 }
-.card-system.active{ visibility:visible; opacity:1; transform:none; z-index:100; }
-.card-system.exit-up{ opacity:0; transform:translateY(-800px) rotate(-10deg) scale(1.1) }
-.card-system.queue-down{ opacity:0; transform:translateY(400px) scale(.85) }
-
-.envelope-back{position:absolute; inset:0; background:var(--env-dark); border-radius:4px; box-shadow:0 25px 50px rgba(0,0,0,0.8)}
-.envelope-front{position:absolute; inset:0; background:var(--env-red);
-clip-path:polygon(0 35%, 50% 70%, 100% 35%, 100% 100%, 0 100%); z-index:10;
-box-shadow: inset 0 -10px 30px rgba(0,0,0,0.2);
-}
-.envelope-front::after{
-  content:''; position:absolute; inset:0; background:var(--gold-main);
-  clip-path:polygon(0 35%, 50% 70%, 100% 35%, 100% 36.5%, 50% 71.5%, 0 36.5%)
+@media (max-height: 600px) {
+    #container { transform: scale(0.75); }
+    .bottom-ui { bottom: 30px !important; }
 }
 
-.lid{position:absolute; inset:0; transform-origin:top; transition:.6s ease; z-index:15}
-.lid::before{
-  content:''; position:absolute;
-  border-left:45vw solid transparent; border-right:45vw solid transparent;
-  border-top:150px solid #820000; left:50%; transform:translateX(-50%);
+.card-system {
+    position:absolute; width:100%; height:100%; cursor:pointer;
+    transition:.8s cubic-bezier(.34,1.56,.64,1);
+    visibility:hidden; opacity:0; transform:translateY(50px) scale(.8);
+    left:0; top:0;
 }
-@media(min-width:467px){ .lid::before{ border-left:200px solid transparent; border-right:200px solid transparent; } }
+.card-system.active { visibility:visible; opacity:1; transform:none; z-index:100; }
+.card-system.exit-up { opacity:0; transform:translateY(-150%) rotate(-10deg) scale(1.1); }
+.card-system.queue-down { opacity:0; transform:translateY(120%) scale(.85); }
 
-.seal{
-  position:absolute; top:105px; left:50%; transform:translateX(-50%);
-  width:68px; height:68px; border-radius:50%;
-  background:var(--gold-main); display:flex; flex-direction:column; align-items:center; justify-content:center;
-  box-shadow:0 8px 20px rgba(0,0,0,0.5); z-index:20; border: 1px solid rgba(255,255,255,0.4);
+/* --- 4. 封套細節 --- */
+.envelope-back { position:absolute; inset:0; background:var(--env-dark); border-radius:4px; box-shadow:0 20px 50px rgba(0,0,0,0.8); }
+.envelope-front {
+    position:absolute; inset:0; background:var(--env-red);
+    clip-path:polygon(0 35%, 50% 70%, 100% 35%, 100% 100%, 0 100%); z-index:10;
+}
+.envelope-front::after {
+    content:''; position:absolute; inset:0; background:var(--gold-main);
+    clip-path:polygon(0 35%, 50% 70%, 100% 35%, 100% 36.5%, 50% 71.5%, 0 36.5%);
+}
+.lid { position:absolute; inset:0; transform-origin:top; transition:.6s ease; z-index:15; }
+.lid::before {
+    content:''; position:absolute; left:50%; transform:translateX(-50%);
+    border-left:min(45vw, 200px) solid transparent; border-right:min(45vw, 200px) solid transparent;
+    border-top:150px solid #820000;
+}
+.seal {
+    position:absolute; top:105px; left:50%; transform:translateX(-50%);
+    width:68px; height:68px; border-radius:50%; background:var(--gold-main);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    box-shadow:0 8px 20px rgba(0,0,0,0.5); z-index:20; border: 1px solid rgba(255,255,255,0.4);
 }
 .seal::before { content: '🐎'; font-size: 24px; }
 .seal::after { content: '丙午'; font-size: 10px; font-weight: bold; color: #5a0000; letter-spacing: 2px;}
 
-.letter{
-  position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
-  width:92%; height:260px; padding:20px; box-sizing:border-box;
-  background:#fffdf5 url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-  border:1px solid #e0d5b0; border-radius:2px;
-  clip-path:inset(100% 0 0 0); transition:.8s cubic-bezier(.4,0,.2,1);
-  z-index:5; display:flex; flex-direction:column; align-items:center;
+.letter {
+    position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
+    width:92%; height:260px; padding:20px; box-sizing:border-box;
+    background:#fffdf5 url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+    border:1px solid #e0d5b0; border-radius:2px;
+    clip-path:inset(100% 0 0 0); transition:.8s cubic-bezier(.4,0,.2,1);
+    z-index:5; display:flex; flex-direction:column; align-items:center;
 }
 
-.card-system.break-seal .seal{animation:sealBreak .5s ease forwards}
-@keyframes sealBreak{ 100%{transform:translateX(-50%) scale(0); opacity:0} }
-.card-system.open-lid .lid{transform:rotateX(160deg); z-index:1}
-.card-system.pull-letter .letter{
-  transform:translateX(-50%) translateY(-210px);
-  clip-path:inset(0 0 0 0); box-shadow:0 20px 40px rgba(0,0,0,.5);
+/* --- 5. 動畫狀態 --- */
+.card-system.break-seal .seal { animation:sealBreak .5s ease forwards; }
+@keyframes sealBreak { 100% { transform:translateX(-50%) scale(0); opacity:0; } }
+.card-system.open-lid .lid { transform:rotateX(160deg); z-index:1; }
+.card-system.pull-letter .letter {
+    transform:translateX(-50%) translateY(-210px);
+    clip-path:inset(0 0 0 0); box-shadow:0 20px 40px rgba(0,0,0,.5);
 }
 
-.title{
-  margin:0 0 8px 0; font-size:20px; letter-spacing:3px; font-weight:900;
-  background:var(--gold-text); background-size:200% auto;
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  animation:shine 3s linear infinite; text-align: center;
+/* --- 6. 文字與 UI --- */
+.title {
+    margin:0 0 8px 0; font-size:20px; letter-spacing:3px; font-weight:900;
+    background:var(--gold-text); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    text-align: center;
 }
-.text{margin-top:10px; text-align:center; line-height:1.8; color:#444; font-size:15px; flex-grow: 1;}
-.line{opacity:0; transform:translateY(8px); animation:lineIn .7s ease forwards}
-@keyframes lineIn{to{opacity:1; transform:none}}
-.signature{margin-top:8px; align-self:flex-end; font-weight:bold; color:#8b0000; font-size:13px; border-bottom: 1.5px solid #8b0000;}
+.text { margin-top:10px; text-align:center; line-height:1.8; color:#444; font-size:15px; flex-grow: 1; }
+.line { opacity:0; transform:translateY(8px); animation:lineIn .7s ease forwards; }
+@keyframes lineIn { to { opacity:1; transform:none; } }
+.signature { margin-top:8px; align-self:flex-end; font-weight:bold; color:#8b0000; font-size:13px; border-bottom: 1.5px solid #8b0000; }
 
 .bottom-ui {
-  position: fixed;
-  bottom: calc(80px + env(safe-area-inset-bottom));
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  z-index: 50;
-  pointer-events: none;
+    position: fixed; bottom: calc(60px + env(safe-area-inset-bottom));
+    width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 50; pointer-events: none;
 }
-
 .zodiac-decor {
-  background: var(--gold-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 6px;
-  text-shadow: 0 0 15px rgba(191,149,63,0.4);
+    background: var(--gold-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-size: 22px; font-weight: 700; letter-spacing: 6px;
 }
+.hint { color: #bf953f; letter-spacing: 4px; font-size: 13px; opacity: 0.8; animation: breath 2.5s ease-in-out infinite; }
+.counter { position:fixed; top:calc(20px + env(safe-area-inset-top)); right:25px; color:#bf953f; font-size:14px; z-index:200; }
 
-.hint {
-  color: #bf953f;
-  letter-spacing: 4px;
-  font-size: 13px;
-  opacity: 0.8;
-  animation: breath 2.5s ease-in-out infinite;
+#music-control {
+    position: fixed; top: calc(20px + env(safe-area-inset-top)); left: 25px;
+    width: 40px; height: 40px; z-index: 300; cursor: pointer;
+    background: rgba(0,0,0,0.3); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid #bf953f; opacity: 0; transition: 0.5s;
 }
+#music-control.visible { opacity: 1; }
+#music-control svg { width: 20px; height: 20px; fill: #bf953f; }
 
-.counter{
-  position:fixed; top:calc(20px + env(safe-area-inset-top)); right:25px;
-  color:#bf953f; font-size:14px; z-index:200;
-}
-
+@keyframes introFade { to { opacity: 1; } }
+@keyframes introReveal { to { opacity: 1; filter: blur(0); } }
 @keyframes breath { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-@keyframes shine{to{background-position:200% center}}
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(191,149,63,0.4); } 70% { box-shadow: 0 0 0 10px rgba(191,149,63,0); } 100% { box-shadow: 0 0 0 0 rgba(191,149,63,0); } }
 
-@media (max-height: 667px) {
-  #container { margin-top: 60px; transform: scale(0.9); }
-  .bottom-ui { bottom: calc(20px + env(safe-area-inset-bottom)); }
+.particle {
+    position: absolute; background: var(--gold-main);
+    pointer-events: none; border-radius: 1px; opacity: 0; z-index: -1;
+    animation: fall linear infinite;
+}
+@keyframes fall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.6; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 </style>
 </head>
 
 <body>
 
+<div id="intro-overlay">
+    <canvas id="intro-canvas"></canvas>
+    <div class="intro-content">
+        <div class="intro-year">2026 丙午馬年</div>
+        <div class="intro-title">肆意奔騰</div>
+        <div style="color:#666; font-size:12px; margin-top:40px; letter-spacing:4px; opacity:0.6;">✦ 滑動或點擊開啟 ✦</div>
+    </div>
+</div>
+
 <div id="music-control" onclick="toggleMusic()">
-  <svg id="icon-play" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-  <svg id="icon-mute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+    <svg id="icon-play" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+    <svg id="icon-mute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
 </div>
 
 <audio id="bgm" loop preload="auto">
-  <source src="audio_3588744925.mp3" type="audio/mpeg">
+    <source src="audio_3588744925.mp3" type="audio/mpeg">
 </audio>
 
 <div class="counter" id="counter"></div>
 <div id="container"></div>
 
 <div class="bottom-ui">
-  <div class="zodiac-decor">二零二六 · 丙午馬年</div>
-  <div class="hint">✦ 滑動切換 · 點擊拆封 ✦</div>
+    <div class="zodiac-decor">二零二六 · 丙午馬年</div>
+    <div class="hint">✦ 滑動切換 · 點擊拆封 ✦</div>
 </div>
 
 <script>
+/* --- A. 煙火與覺醒邏輯 --- */
+const introCanvas = document.getElementById('intro-canvas');
+const ictx = introCanvas.getContext('2d');
+const bgm = document.getElementById("bgm");
+let iw, ih, fwParticles = [];
+let isIntroActive = true;
+
+function initIntro() {
+    iw = introCanvas.width = window.innerWidth;
+    ih = introCanvas.height = window.innerHeight;
+}
+
+class FWParticle {
+    constructor(x, y, color) {
+        this.x = x; this.y = y;
+        this.angle = Math.random() * Math.PI * 2;
+        this.speed = Math.random() * 5 + 1;
+        this.friction = 0.96; this.alpha = 1;
+        this.decay = Math.random() * 0.015 + 0.008;
+        this.color = color;
+    }
+    update() {
+        this.speed *= this.friction;
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed + 0.2;
+        this.alpha -= this.decay;
+    }
+    draw() {
+        ictx.save(); ictx.globalAlpha = this.alpha;
+        ictx.fillStyle = this.color; ictx.beginPath();
+        ictx.arc(this.x, this.y, 1.2, 0, Math.PI * 2); ictx.fill();
+        ictx.restore();
+    }
+}
+
+function animateIntro() {
+    ictx.fillStyle = 'rgba(5, 5, 5, 0.18)';
+    ictx.fillRect(0, 0, iw, ih);
+    let chance = isIntroActive ? 0.01 : 0.06;
+    if (Math.random() < chance) {
+        const x = Math.random() * iw;
+        const y = Math.random() * ih * 0.6;
+        for(let i=0; i<35; i++) fwParticles.push(new FWParticle(x, y, '#bf953f'));
+    }
+    fwParticles.forEach((p, i) => {
+        p.update(); p.draw();
+        if (p.alpha <= 0) fwParticles.splice(i, 1);
+    });
+    requestAnimationFrame(animateIntro);
+}
+
+function awakeExperience() {
+    if (!isIntroActive) return;
+    bgm.volume = 0;
+    bgm.play().then(() => {
+        let vol = 0;
+        const fadeIn = setInterval(() => {
+            if (vol < 1) { vol += 0.05; bgm.volume = Math.min(vol, 1); }
+            else clearInterval(fadeIn);
+        }, 80);
+    }).catch(e => console.log("User interaction required"));
+
+    document.getElementById("music-control").classList.add("visible");
+    document.getElementById("music-control").style.animation = "pulse 2s infinite";
+
+    for(let i=0; i<6; i++) {
+        setTimeout(() => {
+            const x = Math.random() * iw;
+            const y = Math.random() * ih * 0.4;
+            for(let j=0; j<60; j++) fwParticles.push(new FWParticle(x, y, '#fcf6ba'));
+        }, i * 250);
+    }
+
+    setTimeout(() => {
+        document.getElementById('intro-overlay').style.opacity = '0';
+        setTimeout(() => { 
+            document.getElementById('intro-overlay').style.visibility = 'hidden'; 
+            isIntroActive = false;
+        }, 2000);
+    }, 2500);
+}
+
+["click", "touchstart", "wheel"].forEach(ev => window.addEventListener(ev, awakeExperience, { once: true }));
+
+/* --- B. 賀卡核心邏輯 --- */
 const wishes=[
-  {to:"尊貴的合作夥伴",from:"王大明",wish:["祝您新的一年","龍馬精神，步步高升","事業騰飛創輝煌。"]},
-  {to:"敬愛的長輩",from:"李小華",wish:["願 2026 丙午年","福馬迎祥，身體康健","萬事順遂平安。"]},
-  {to:"親愛的朋友",from:"張經理",wish:["感謝一路並肩","財源廣進，福氣滿門","好運奔騰而來。"]}
+    {to:"尊貴的合作夥伴",from:"王大明",wish:["祝您新的一年","龍馬精神，步步高升","事業騰飛創輝煌。"]},
+    {to:"敬愛的長輩",from:"李小華",wish:["願 2026 丙午年","福馬迎祥，身體康健","萬事順遂平安。"]},
+    {to:"親愛的朋友",from:"張經理",wish:["感謝一路並肩","財源廣進，福氣滿門","好運奔騰而來。"]}
 ];
 
 let currentIndex=0;
-let isMusicInitiated = false;
-let userWantsMusic = true; // 紀錄使用者最後的手動選擇
 const container=document.getElementById("container");
 const counter=document.getElementById("counter");
-const bgm = document.getElementById("bgm");
-const iconPlay = document.getElementById("icon-play");
-const iconMute = document.getElementById("icon-mute");
-
-// --- 核心修正：偵測頁面狀態 ---
-document.addEventListener("visibilitychange", function() {
-  if (document.hidden) {
-    // 當頁面隱藏（離開、關閉、切換 App）
-    bgm.pause();
-  } else {
-    // 當使用者回到頁面
-    if (isMusicInitiated && userWantsMusic) {
-      bgm.play().catch(e => console.log("等待重新互動"));
-    }
-  }
-});
-
-function initiateAudio() {
-  if (!isMusicInitiated && userWantsMusic) {
-    bgm.play().then(() => {
-      isMusicInitiated = true;
-    }).catch(err => console.log("User interaction needed"));
-  }
-}
-
-["click", "touchstart", "wheel", "mousedown"].forEach(event => {
-  window.addEventListener(event, initiateAudio, { once: true });
-});
 
 function toggleMusic() {
-  isMusicInitiated = true; 
-  if (bgm.paused) {
-    userWantsMusic = true;
-    bgm.play();
-    iconPlay.style.display = "block";
-    iconMute.style.display = "none";
-    document.getElementById("music-control").style.animation = "pulse 2s infinite";
-  } else {
-    userWantsMusic = false;
-    bgm.pause();
-    iconPlay.style.display = "none";
-    iconMute.style.display = "block";
-    document.getElementById("music-control").style.animation = "none";
-  }
-}
-
-function createParticles() {
-  for (let i = 0; i < 20; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const size = Math.random() * 4 + 2 + 'px';
-    p.style.width = size; p.style.height = size;
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.animationDuration = Math.random() * 6 + 4 + 's';
-    p.style.animationDelay = Math.random() * 5 + 's';
-    document.body.appendChild(p);
-  }
-}
-
-const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-function paperSound(){
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  o.type="triangle";o.frequency.value=180;
-  g.gain.value=0.015;
-  o.connect(g);g.connect(audioCtx.destination);
-  o.start();o.stop(audioCtx.currentTime+.08);
-}
-
-function updateView(){
- document.querySelectorAll(".card-system").forEach((c,i)=>{
-  c.className="card-system";
-  if(i===currentIndex)c.classList.add("active");
-  else if(i<currentIndex)c.classList.add("exit-up");
-  else c.classList.add("queue-down");
- });
- counter.innerText=`Nº ${currentIndex+1} / ${wishes.length}`;
+    const iconPlay = document.getElementById("icon-play");
+    const iconMute = document.getElementById("icon-mute");
+    const mc = document.getElementById("music-control");
+    if (bgm.paused) {
+        bgm.play(); iconPlay.style.display="block"; iconMute.style.display="none";
+        mc.style.animation="pulse 2s infinite";
+    } else {
+        bgm.pause(); iconPlay.style.display="none"; iconMute.style.display="block";
+        mc.style.animation="none";
+    }
 }
 
 function initCards(){
- wishes.forEach(item=>{
-  const card=document.createElement("div");
-  card.className="card-system";
-  card.dataset.step=0;
-  const lines=item.wish.map((t,i)=>`<div class="line" style="animation-delay:${(i+1)*.3}s">${t}</div>`).join("");
-  card.innerHTML=`
-    <div class="lid"></div>
-    <div class="seal"></div>
-    <div class="envelope-back"></div>
-    <div class="envelope-front"></div>
-    <div class="letter">
-     <h1 class="title">祝賀 ${item.to}</h1>
-     <div class="text">${lines}</div>
-     <div class="signature">${item.from} 敬賀</div>
-    </div>`;
-  card.onclick=()=>{
-    initiateAudio();
-    if(!card.classList.contains("active"))return;
-    const step=+card.dataset.step;
-    if(step===0)card.classList.add("break-seal");
-    if(step===1)card.classList.add("open-lid");
-    if(step===2){card.classList.add("pull-letter");paperSound();}
-    card.dataset.step=Math.min(step+1,3);
-  };
-  container.appendChild(card);
- });
- updateView();
- createParticles();
+    wishes.forEach(item=>{
+        const card=document.createElement("div");
+        card.className="card-system";
+        card.dataset.step=0;
+        const lines=item.wish.map((t,i)=>`<div class="line" style="animation-delay:${(i+1)*.3}s">${t}</div>`).join("");
+        card.innerHTML=`
+            <div class="lid"></div><div class="seal"></div>
+            <div class="envelope-back"></div><div class="envelope-front"></div>
+            <div class="letter">
+                <h1 class="title">祝賀 ${item.to}</h1>
+                <div class="text">${lines}</div>
+                <div class="signature">${item.from} 敬賀</div>
+            </div>`;
+        card.onclick=()=>{
+            if(!card.classList.contains("active"))return;
+            const step=+card.dataset.step;
+            if(step===0)card.classList.add("break-seal");
+            if(step===1)card.classList.add("open-lid");
+            if(step===2){card.classList.add("pull-letter");}
+            card.dataset.step=Math.min(step+1,3);
+        };
+        container.appendChild(card);
+    });
+    updateView();
+}
+
+function updateView(){
+    document.querySelectorAll(".card-system").forEach((c,i)=>{
+        c.className="card-system";
+        if(i===currentIndex)c.classList.add("active");
+        else if(i<currentIndex)c.classList.add("exit-up");
+        else c.classList.add("queue-down");
+    });
+    counter.innerText=`Nº ${currentIndex+1} / ${wishes.length}`;
 }
 
 function change(dir){
- initiateAudio();
- const active=document.querySelector(".active");
- if(active){
-   active.classList.remove("break-seal","open-lid","pull-letter");
-   active.dataset.step=0;
- }
- if(dir==="next"&&currentIndex<wishes.length-1)currentIndex++;
- if(dir==="prev"&&currentIndex>0)currentIndex--;
- updateView();
+    const active=document.querySelector(".active");
+    if(active){ active.classList.remove("break-seal","open-lid","pull-letter"); active.dataset.step=0; }
+    if(dir==="next"&&currentIndex<wishes.length-1)currentIndex++;
+    if(dir==="prev"&&currentIndex>0)currentIndex--;
+    updateView();
 }
 
 window.addEventListener("wheel",e=>{ if(Math.abs(e.deltaY)>30)change(e.deltaY>0?"next":"prev"); });
 let startY=0;
 window.addEventListener("touchstart",e=>startY=e.touches[0].clientY);
 window.addEventListener("touchend",e=>{
- const d=startY-e.changedTouches[0].clientY;
- if(Math.abs(d)>50)change(d>0?"next":"prev");
+    const d=startY-e.changedTouches[0].clientY;
+    if(Math.abs(d)>50)change(d>0?"next":"prev");
 });
 
-container.addEventListener("mousemove",e=>{
- const c=document.querySelector(".active");
- if(!c)return;
- const r=c.getBoundingClientRect();
- c.style.setProperty("--x",`${e.clientX-r.left}px`);
- c.style.setProperty("--y",`${e.clientY-r.top}px`);
-});
-
-initCards();
+window.onresize = initIntro;
+initIntro(); animateIntro(); initCards();
 </script>
 </body>
 </html>
